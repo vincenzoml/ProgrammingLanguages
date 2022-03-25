@@ -1,4 +1,4 @@
-# This directory contains slides for the course
+# This directory contains slides for the course "Programming Languages" (Mathematics, University of Pisa, Third Year)
 
 
 ## License

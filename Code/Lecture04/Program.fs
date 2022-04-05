@@ -1,218 +1,23 @@
-﻿// FSharp: functions, recursion, abstract data types, & c.
+﻿// Folds
 
-// This file is not meant to be run directly with "dotnet run" since it also contains errors
-// Evaluate it line by line using the interpreter, or comment all the lines and then
-// uncomment just one line and use dotnet run
-
-// Comments are like this one
-
-
-/// Printf in all flavours
-
-printfn "Hello world" (* Hello world -- Yes, one can also comment in this way *)
-
-printfn "%d" 3 
-printfn "%s" "hello"
-printfn "The result of %d + %d is %d" 3 2 5
-printfn "%A %A %A" 3.0 3 "3"
-
-/// Simple expressions
-
-printfn "three plus three is %d" (3+3)
-// Error:
-// printfn "%d" 3+3
-// because it's parsed as (printfn "%A")(3)(+3)
-
-/// Let binding
-
-let x1 = 3
-
-printfn "%A" x1
-
-let plus (x,y) =  x + y
-
-
-// Let's try a more complicated example
-
-let ratio(x,y) =
-    let z = x * y
-    let w = (2*x) + (2*y)
-    w / z
-
-printfn "%A" (ratio(1,225))
-printfn "%A" (ratio(15,15))
-
-// Let us get to types!
-let getType(x) = x.GetType().FullName
-
-printfn "%A" (getType("3"))
-
-// Question: what's this? Before running it!
-
-printfn "%A" (getType(getType("3")))
-
-// Note the difference with
-
-printfn "%A" ( "3".GetType().GetType().FullName )
-
-// Back to the original problem in the definition of g
-
-printfn "%A" (getType 3.0)  // Note: I'm starting to omit unnecessary parentheses
-printfn "%A" (getType 3)
-
-// Try to evaluate in the interpreter
-// (3 : int)
-// (3 : double)
-
-// Try to evaluate
-// (3.0 : int)
-
-// Note the ":" construct. It does not change the semantics, it only checks it from the point of view of the user.
-let ratio2(x : float,y : float) =
-    let z = x * y
-    let w = (2.0 * x) + (2.0 * y)
-    (w / z  : float)
-
-printfn "%A" (ratio2(1,225))
-printfn "%A" (ratio2(15,15))
-
-// Conditional EXPRESSIONS (the equivalent of "condition ? e1 : e2" in languages derived from C)
-
-let x = 
-    if 5 > 4 then
-        (failwith "STUB")
-    else
-        "OK"
-
-
-// Recursion
-
-let rec recFn x = // Note that I'm also omitting parentheses here
-    if x <= 0 then 
-        0 // Note: return is NOT needed in functions
-    else 
-        2 + (recFn (x - 1)) // why do I need parentheses around (x-1) ?
-
-printfn "%d" (recFn 7)
-
-// Anonymous functions (lambda-calculus-like)
-
-printfn "%d" ((fun x -> x + 1)(10))
-
-// Anonymous functions can't be recursive!
-
-// Tuples vs functional abstraction
-
-// Recall the definition of plus
-// let plus(x,y) = x + y
-
-let plus' x y = x + y
-
-// Same as:
-// let plus' = (fun x -> (fun y -> (x + y)))
-
-let fn1 = plus' 3
-
-// Q: when you write plus (2,3), how many arguments does f1 get? Of which type?
-
-let pair = (2,3)
-
-// Currying and uncurrying
-
-let curry = fun f (x,y) -> f x y
-let uncurry = fun f -> fun x -> fun y -> f (x,y)
-
-let fn2 = curry plus'
-
-let plus'' (x,y) = plus' x y
-
-// Tuples
-
-let triplet = (6,1,32)
-
-let quadruple = (3,4,23,12)
-
-// Q: what is the following value?
-
-let quadruple' = (3,(4,23),12)
-
-printfn "%A" (fst (1,2))
-printfn "%A" (snd (1,2))
-
-// Functional programming
-
-let functional1 (f : int -> int) x = 1 + (f x)
-
-// Q: what does functional2 do in the following?
-let functional2 (f : int -> int) x = (functional1 f x) - 1
-
-let double x = x * 2
-
-let succ x = x + 1
-
-printfn "%A" (functional2 succ 3)
-
-let functional3 = functional2 succ
-
-printfn "%A" (functional3 3)
-
-// Conditional expressions
-
-let val1 = 3
-let cond1 = if val1 > 4 then 1 else 0
-
-// Note: boolean expressions are also expressions:
-
-let bool1 = val1 > 4
-let cond2 = if bool1 then 1 else 0
-
-// Recursion!
-
-let rec recFn1 x = 
-    if x <= 0 then 1 else 1 + (recFn1 (x-1))
-
-// Try to remove rec see what's the error. Why?
-
-let rec recFn2 x = 
-    if x <= 0 then 0        
-    else 2 + (recFn2 (x - 1))
-
-// Aha! Let's see:
-// let rec recFn3 x = 
-//     x + (recFn3 x)
-
-/////// 
-/// Exercises: define the following functions, each time test them on a few cases.
-
-/// Fibonacci
-
-/// Sum of the first k numbers
-
-let rec sum k = 
-    if k <= 0 then 0 else k + (sum (k-1))
-
-/// Product of the first k numbers
-
-/// Sum for i in [1,k] of f(i), defined using a function, taking as arguments k and f
-
-let rec sum2 k f = 
-    if k <= 0 then f 0 
-    else (f k) + (sum2 (k-1) f) 
-
-
-/// Now take also the sum or product as an argument, and take an interval that is: 
-// define a function fold taking three arguments: a binary function g, a unary function f, two extremes k1 and k2, a "initial value" z (which is 0 for the sum and 1 for the product) 
-// "fold g f k1 k2 z" must compute g(g(z,f(k1)),f(k1+1),...), for instance "fold sum f 1 n 0" is the sum for i in [1,n] of f(i).
-
-let rec fold g f k1 k2 z = 
+let rec foldLeft g f k1 k2 z = 
     if k1 >= k2 then g(z,f(k1))
-    else g(f k1,fold g f (k1+1) k2 z)
+    else g(foldLeft g f k1 (k2-1) z,f k2)
+
+let rec foldRight g f k1 k2 z = 
+    if k1 >= k2 then g(f(k1),z)
+    else g(f k1,foldRight g f (k1+1) k2 z)
+
+printfn "%A" (foldLeft (fun (a,b) -> a-b) (id) 1 5 0)
+
+printfn "%A" (foldRight (fun (a,b) -> a-b) (id) 1 5 0)
 
 // Lists
 
 let list1 = [1; 2; 3]
 
 let list2 = [1,2,3]
+
 let list2' = [(1,2,3)]
 
 let list3 = (1,2,3)
@@ -284,6 +89,10 @@ let rec firstElement (lst : list<int>) =
 /// 
 /// Function to find both maximum and minimum in one pass
 /// 
+/// Function to find the leftmost local optimum
+/// 
+/// Function to find the rightmost local optimum
+/// 
 /// Function to "intersperse" a list with a value, e.g.
 /// intersperse "-" ["a";"b";"c"] = ["a";"-";"b";"-";"c"]
 /// 
@@ -322,12 +131,318 @@ let rec unzip l =
         let tl = unzip (List.tail l)
         ((fst hd)::(fst tl),(snd hd)::(snd tl))
 
-// Pattern matching (start by two chained ifs)
+// Pattern matching 
+
+let rec fib x = 
+    match x with    
+    | 1 -> 1
+    | 2 -> 1
+    | n -> (fib (n-1)) + (fib (n-2))
+
+let rec fib2 x = 
+    match x with    
+    | n when n < 1 -> failwith (sprintf "Error: %d is less than 1)" x)
+    | (1|2) -> 1
+    | n -> (fib2 (n-1)) + (fib2 (n-2))
+
+let rec fn2 a =
+    match a with
+    | (x,y) when x > 0 && y > 0 -> x + y
+    | (x,_) when x < 0 -> 0
+    | _ -> failwith "this makes no sense"
+
+let rec length2 l =
+    match l with
+    | [] -> 0
+    | x::xs -> 1 + (length2 xs)
+
+let rec myMax1 (a,b) = 
+    match (a,b) with
+    | _ when a >= b -> a
+    | _ -> b
+
+let rec myMax2 (a,b) = 
+    match 42 with
+    | _ when a >= b -> a
+    | _ -> b
+
+// Incomplete matches
+
+let f4 x = 
+    match x with
+    | 0 -> "zero"
+
+// Exercise: implement Euclid's algorithm
+
+// Implement concatenation via pattern matching
+
+// Look at the List module
 
 // Arrays
 
-// Records
+let v1 = [|0;1;2|]
+let v2 = [||]
 
-// Abstract data types
+printfn "%A"
+    (match v1 with 
+        | [||] -> 0
+        | [|x1;x2|] -> x1)
 
-// Type variables
+printfn "%A" v1.[2]
+
+printfn "%A" [|10;12;3|].[3]
+
+printfn "%A" [1;2;3].[2]
+
+// What's the difference between lists and arrays??
+
+// 1) Constant vs linear access time
+// 2) Arrays can be modified in place (with constant access time)
+
+let array1 = [| 1; 2; 3 |]
+array1.[0] <- 7
+
+printfn "%A" array1.[0]
+
+// However...
+
+let listOfArrays = [ [| 0 |]; [| 1 |]; [| 2 |] ]
+
+listOfArrays.[0].[0] <- 12
+
+printfn "%A" listOfArrays.[0].[0]
+
+// In the terminal: 
+// > listOfArrays;;
+// val it: int[] list = [[|12|]; [|1|]; [|2|]]
+
+// Exercise: define the component-wise product of two arrays and of two lists
+
+// Define the dot product of two arrays and of two lists
+
+// Define the scalar product between a scalar and an array
+
+// Check the module Array
+
+// Check in particular the map and iter functions
+
+let list7 = List.ofArray array1
+
+let list8 = List.map (fun x -> x+1) list7
+
+printfn "%A\n%A" list7 list8
+
+List.iter (fun x -> printfn "--- %A ---" x) list8
+
+// Array.map and Array.iter work in the same way
+
+// We have also fold, and foldBack
+printfn "%A" (List.fold (fun x y -> x + y) 0 list8)
+ 
+// Exercise:
+
+// Define a function which has several local maxima e.g. 
+// let f1 (x : int) =                        
+//     let y = float x
+//     let res = -(15.0 * (cos (4.0*y)) - 3.0*y)
+//     int res
+
+// Or simpler: 
+// let f2 x = -(15.0 * (cos (4.0*y)) - 3.0*y)
+
+// Define a function that tabulates a function on the integer in a closed interval and returns a list
+// tabulate i j f = [f i,f (i+1),...,f j]
+// if i> j then the empty list must be returned
+
+// Use List.fold and List.foldBack to find the first and last local maxima of f1 over an interval
+
+// Find the global maximum on a list
+
+// Find in one pass the maximum and minimum (use a pair as the state of the fold)
+
+// Use foldBack to unzip list of pairs to a pair of lists (use a list as the state of the fold)
+ 
+let unzip2 l = 
+    List.foldBack
+        (fun x st -> 
+            match st with
+            | (l1,l2) -> (fst x::l1, snd x::l2))        
+        l
+        ([],[])
+
+// Type variables and parametric types
+
+let interestingFunction x y = printfn "%A %A" x y
+// Error: it's not clear what is the type of l (e.g. array or list) due to overloading
+// let interestingFunction2 l = l.[0]
+let interestingFunction2 (l : list<'a>) = l.[0]
+
+// Type abbreviations
+
+type UsefulType = int * string
+
+// Errors:
+// type UsefulType2 = a * string // a is an undefined type
+// type UsefulType2 = 'a * string // a is an undefined type parameter
+
+type UsefulType<'a> = 'a * string
+
+// Warning: 3 is less generic than 'a
+let ut1 : UsefulType<'a> = (3,"ciao")
+
+// How to make it more generic?
+let f (x : 'a) = (x,"ciao") : UsefulType<'a>
+
+
+// But UsefulType is not that useful. It's just a type synonym.
+
+let ut2 = ut1 : int * string
+
+let fnUT1 (x : UsefulType<'a>) = fst x
+
+// Type constructors create fresh types, distinct from all the others
+
+type VeryUseful = VU of int
+
+let vu1 = VU 3
+
+let fnVU1 x = 
+    match x with 
+    | VU i -> i + 1
+
+let fnVU2 x = 
+    match x with 
+    | VU i -> VU (i + 1)
+
+// Alternatives are permitted
+
+type Alternative<'a,'b> = Alt1 of 'a | Alt2 of 'b
+
+// Pattern matching!
+// For more info, see https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/pattern-matching and google.
+let applyAlt x f1 f2 = 
+    match x with
+    | Alt1 x1 -> f1 x1
+    | Alt2 x2 -> f2 x2
+
+let mapAlt x f1 f2 =
+    match x with
+    | Alt1 x1 -> Alt1 (f1 x1)
+    | Alt2 x2 -> Alt2 (f2 x2)
+
+let map1Alt x f =
+    match x with
+    | Alt1 x1 -> Alt1 (f x1)
+    | Alt2 x2 -> Alt2 (f x2)
+
+// Pattern matching in let bindings
+
+let pair1 = (2,3)
+
+let alt1 = Alt2 3
+
+let (2,el1) = pair1
+
+let (Alt2 el2) = alt1
+
+// Q: What does the following do instead
+// let Alt2 el2 = alt1
+
+// Imperative programming in FSharp
+
+// References
+
+let mutable ref1 = 0
+
+ref1 <- 1
+
+printfn "%A" ref1
+
+let mutableList = [ref1]
+
+// But....
+// mutableList.[0] <- 1
+
+let ref2 = ref 0
+
+ref2.Value <- 1
+
+// Q: what does y.Value = 1 mean instead?
+
+let refList = [ref2]
+
+refList.[0].Value <- 28
+
+printfn "%A" refList
+
+printfn "%A" (List.map (fun (r : ref<'a>) -> r.Value) refList)
+
+
+// Exercise: explain and demonstrate the difference between:
+
+let refList2 = 
+    let r = ref 0
+    [r,r]
+
+let refList3 = 
+    [ref 0,ref 0]
+
+// Wow, so expanding name definitions does not work?
+// In the presence of side effects, this is true.
+
+// More imperative programming
+
+
+let idxOf x vector = 
+    if Array.length vector <= 0 then failwith "undefined"    
+    let mutable found = false
+    let mutable result = -1
+    let mutable index = 0
+    while not found do
+        if index >= Array.length vector then failwith "not found"
+        if vector.[index] = x then 
+            result <- index
+            found <- true
+        else 
+            index <- index + 1
+    result
+
+let v = [| 17; 42; 33; 57; 12; 1; 100; 22; 0|]
+
+printfn "%A" (idxOf 34 [||])
+
+// Exercise: find the maximum using while
+
+// Imperative programming 
+
+let max1 vector =
+    if Array.length vector <= 0 then failwith "undefined"    
+    let mutable res = vector.[0]
+    for i = 1 to (Array.length vector) - 1 do
+        res <- max res vector.[i]
+    res
+
+// Exercise: pass the comparison function as an argument
+
+// Let's mix functional and imperative style...
+
+let max2 vector (res : ref<int>) =
+    if Array.length vector <= 0 then failwith "undefined"    
+    res.Value <- vector.[0]
+    Array.iter (fun x -> res.Value <- max res.Value x) vector
+        
+// Q: how to retrieve the result after calling
+// max2 v (ref 0)
+
+// Recursive types!
+
+type List<'a> = Empty | Cons of ('a * List<'a>)
+
+let lst1 = Cons (3, Cons (4, Cons (7,Empty)))
+
+let rec sumList l =
+    match l with
+    | Empty -> 0
+    | Cons (head,tail) -> head + (sumList tail)
+
+printfn "%A" (sumList lst1)

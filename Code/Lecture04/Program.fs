@@ -30,6 +30,8 @@ printfn "%A %A %A" list1.[0] list1.[1] list1.[2]
 
 printfn "%A %A" (List.head list1) (List.tail list1)
 
+
+
 let rec length lst = 
     if lst = [] 
     then 0
@@ -38,6 +40,7 @@ let rec length lst =
 printfn "%A" (length list1)
 printfn "%A" (length list2)
 printfn "%A" (length list2')
+
 
 // "Cons" operator (see LISP)
 
@@ -56,11 +59,15 @@ let rec evenPositionsRec i lst =
 
 printfn "%A" (evenPositionsRec 0 [1;2;3;4;5])
 
+
+
 let evenPositions lst = evenPositionsRec 0 lst
 
 // ALSO:
 let evenPositions' lst =
     let rec aux i lst =
+        let x = lst
+        printfn "Debug: %A" x    
         if lst = [] then []
         else 
             if i % 2 = 0 
@@ -80,6 +87,13 @@ let rec firstElement (lst : list<int>) =
 /// Exercises
 
 /// Function to reverse a list
+/// 
+
+let rec reverse acc lst =
+    if lst = [] then acc
+    else reverse ((List.head lst) :: acc) (List.tail lst)
+
+let r lst = reverse [] lst
 /// 
 /// Function to sum all the elements of a list
 /// 
@@ -103,36 +117,13 @@ let rec firstElement (lst : list<int>) =
 /// 
 /// Function to multiply two lists value by value; raise an error if one is longer than the other one. 
 /// multiplyLists [1;2;3] [4;5;6] = [4;10;18]
+/// 
 
-// Function to "zip" a list: from a pair of lists, obtain a list of pairs
+/////// LECTURE 4 ENDS HERE
 
-// Function to unzip a list: from a list of pairs, obtain two lists
-
-// Don't look at the solution
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-let rec unzip l = 
-    if l = [] then ([],[])
-    else 
-        let hd = List.head l
-        let tl = unzip (List.tail l)
-        ((fst hd)::(fst tl),(snd hd)::(snd tl))
+/////// LECTURE 5 STARTS HERE
 
 // Pattern matching 
-
 let rec fib x = 
     match x with    
     | 1 -> 1
@@ -148,35 +139,85 @@ let rec fib2 x =
 let rec fn2 a =
     match a with
     | (x,y) when x > 0 && y > 0 -> x + y
-    | (x,_) when x < 0 -> 0
+    | (x,_) when x < 0 -> 0    
     | _ -> failwith "this makes no sense"
 
-let rec length2 l =
-    match l with
-    | [] -> 0
-    | x::xs -> 1 + (length2 xs)
+let fst a =
+    match a with
+    | (x,_) -> x
 
-let rec myMax1 (a,b) = 
+let rec length2 l =
+    match l with    
+    | [] -> 0
+    | (_ :: xs) -> 1 + (length2 xs)
+
+let rec nth i l = 
+    match (i,l) with
+    | (_,[]) -> failwith "empty list"
+    | (0,x::_) -> x 
+    | (n,_::xs) when n > 0 -> nth (n-1) xs
+    | _ -> failwith "i is negative"
+
+let rec nth' i l = 
+    if i > 0 then 
+        match (i,l) with
+        | (_,[]) -> failwith "empty list"
+        | (0,x::_) -> x 
+        | (n,_::xs) -> nth (n-1) xs
+    else failwith "i is negative"
+        
+let rec myMax1(a,b) = 
     match (a,b) with
     | _ when a >= b -> a
     | _ -> b
 
-let rec myMax2 (a,b) = 
-    match 42 with
-    | _ when a >= b -> a
-    | _ -> b
+let rec fst'(a,_) = 
+    match 13 with
+    | _ -> a
 
 // Incomplete matches
-
 let f4 x = 
     match x with
-    | 0 -> "zero"
+    | 0 -> "zero"    
 
 // Exercise: implement Euclid's algorithm
+let rec eucl x =
+    match x with
+    | (a,b) when a <= 0 || b <= 0 -> failwith "non-positive number detected"
+    | (a,b) when a > b -> eucl (a-b,b)
+    | (a,b) when a < b -> eucl (a,b-a)
+    | (a,_) -> a
+
+
 
 // Implement concatenation via pattern matching
 
 // Look at the List module
+
+// Function to "zip" a list: from a pair of lists, obtain a list of pairs
+
+let rec zip l1 l2 = 
+    match (l1,l2) with
+    | ([],[]) -> []
+    | (x::xs,y::ys) -> (x,y)::(zip xs ys)
+    | _ -> failwith "zip cannot operate on lists of different lengths"
+
+
+let rec zip' l1 l2 = 
+    match (l1,l2) with
+    | ([],_)|(_,[]) -> []    
+    | (x::xs,y::ys) -> (x,y)::(zip xs ys)
+    
+// Function to unzip a list: from a list of pairs, obtain two lists
+
+let rec unzip l = 
+    match l with
+    | [] -> ([],[])
+    | (a,b)::tl -> 
+        let (h,k) = unzip tl
+        (a::h,b::k)
+
+///// END OF LECTURE 5 
 
 // Arrays
 
@@ -446,3 +487,5 @@ let rec sumList l =
     | Cons (head,tail) -> head + (sumList tail)
 
 printfn "%A" (sumList lst1)
+
+// Error type

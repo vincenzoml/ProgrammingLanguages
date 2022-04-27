@@ -9,24 +9,22 @@ type aexp =
 | AEminus of (aexp * aexp) 
 | AEtimes of (aexp * aexp)
 
-let rec aexp_to_string : aexp -> string = 
-  fun e ->
+let rec aexp_to_string e =
     match e with
-      AEint i -> Printf.sprintf "%d" i
-    | AEplus (e1,e2) -> Printf.sprintf "(%s + %s)" (aexp_to_string e1) (aexp_to_string e2)
-    | AEminus (e1,e2) -> Printf.sprintf "(%s - %s)" (aexp_to_string e1) (aexp_to_string e2)
-    | AEtimes (e1,e2) -> Printf.sprintf "(%s * %s)" (aexp_to_string e1) (aexp_to_string e2)
+    | AEint i -> sprintf "%d" i
+    | AEplus (e1,e2) -> sprintf "(%s + %s)" (aexp_to_string e1) (aexp_to_string e2)
+    | AEminus (e1,e2) -> sprintf "(%s - %s)" (aexp_to_string e1) (aexp_to_string e2)
+    | AEtimes (e1,e2) -> sprintf "(%s * %s)" (aexp_to_string e1) (aexp_to_string e2)
       
 // semantic domains 
 type eval = int
-  
+
 let eval_to_string : eval -> string =
   fun e -> Printf.sprintf "%d" e
 
 // error handling 
 let negative_natural_number_error () = failwith "natural numbers must be positive or zero"
-  
-  
+    
 // denotational semantics 
 let rec sem : aexp -> eval =
   fun ae ->
@@ -36,18 +34,18 @@ let rec sem : aexp -> eval =
         then negative_natural_number_error ()
         else i
     | AEplus (e1,e2) ->  (* Q: devo controllare che s1 e s2 siano non negativi? *)
-      let s1 = sem e1 in
-      let s2 = sem e2 in
+      let s1 = sem e1 
+      let s2 = sem e2 
       s1 + s2
     | AEminus (e1,e2) ->
-      let s1 = sem e1 in
-      let s2 = sem e2 in
+      let s1 = sem e1 
+      let s2 = sem e2 
       if s1 >= s2 
       then (s1 - s2) 
       else negative_natural_number_error ()
     | AEtimes (e1,e2) ->
-      let s1 = sem e1 in
-      let s2 = sem e2 in
+      let s1 = sem e1 
+      let s2 = sem e2 
       s1 * s2
 
 (* test *)
@@ -89,6 +87,9 @@ let main =
 // ((3 + 2) * 5) ===> 25
 // 
 
+// Exercise:
+// Implement BOOLEAN EXPRESSIONS (and, or, not, and constants)
+// FSharp has the type "bool" with values "true" and "false"
 
 // Digression: parallel computation
 
@@ -107,11 +108,11 @@ let runTasks1 () =
     )  
     t.Start()
 
-
-
 let seqIncr () = 
+  
   let myArray = [| 0 |]
-  for _ = 1 to 100 do
+
+  for i = 1 to 100 do
     Thread.Sleep 100
     myArray[0] <- myArray[0] + 1
   myArray
@@ -244,6 +245,11 @@ let think =
   fun () -> 
     Thread.Sleep (rnd.Next 100)
 
+let eat =
+  let rnd = System.Random ()
+  fun () -> 
+    Thread.Sleep (rnd.Next 100)
+
 let philosopher numPhilosophers (chopsticks : array<array<unit>>) id =
   let rnd = System.Random()
   for i = 1 to 10 do
@@ -256,9 +262,8 @@ let philosopher numPhilosophers (chopsticks : array<array<unit>>) id =
       think ()
       lock chopsticks[sndChop] (fun () ->
         printfn "Philosopher %d acquired chopstick %d (2)" id sndChop        
-        think ()
         printfn "Philosopher %d is eating (round %d)" id i
-        think ()
+        eat ()
         printfn "Philosopher %d finished eating (round %d)" id i
       )
     )

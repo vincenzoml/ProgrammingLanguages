@@ -1,6 +1,5 @@
 ﻿// expressions over _natural_ numbers 
 
-
 // syntactic domains 
 
 type aexp = 

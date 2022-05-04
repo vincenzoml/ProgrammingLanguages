@@ -1,6 +1,6 @@
-(** Expressions with let and if then else, booleans *)
+// Expressions with let and if then else, booleans 
 
-(* syntax *)
+// syntax 
 
 type ide = string
   
@@ -52,7 +52,6 @@ let unbound_identifier_error ide =
 let negative_natural_number_error () = failwith "natural numbers must be positive or zero"
 
 let type_error () = failwith "type error"
-
 
 (* semantic domains *)
     

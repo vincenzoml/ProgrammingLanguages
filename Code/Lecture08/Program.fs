@@ -8,8 +8,9 @@ type aexp =
 | AEint of int 
 | AEplus of (aexp * aexp) 
 | AEminus of (aexp * aexp) 
-| AElet of (ide * aexp * aexp) 
-| AEide of ide
+| AElet of (ide * aexp * aexp) // AElet("ciccio",AEplus (AEint 10) (AEint 20),AEplus (AEide "ciccio",AEint 3))
+| AEide of ide // AEide "ciccio"
+
 
 let rec aexp_to_string (e : aexp) =
   match e with
@@ -34,46 +35,59 @@ let negative_natural_number_error () = failwith "natural numbers must be positiv
 type eval = int 
 type dval = eval // denotable and expressible values coincide
 
+let evalToDval x = x // "converts" a denotable value to an expressible value
+
+
 let eval_to_string : eval -> string =
   fun e -> Printf.sprintf "%d" e
     
 type env = ide -> dval // VERY IMPORTANT: this is the environment that associates a "eval" to each defined identifier
 
-let empty = fun v -> unbound_identifier_error v
+// What is an environment? Is it memory? NO! Example:
+let f() =
+  let x = [| 1; 2; 3 |]
+  let y = x
+  let x = [|0|] // Commenting this line changes the result
+  x[0] <- 7
+  y[0]
 
-let bind (en : env) (v : ide) (dv : eval) = // VERY IMPORTANT: the binding operation that computes a new environment out of an environment, an identifier to bind, and the value
+let empty : ide -> dval = (fun v -> unbound_identifier_error v)
+
+let bind (en : env) (v : ide) (dv : dval) = // VERY IMPORTANT: the binding operation that computes a new environment out of an environment, an identifier to bind, and the value
   fun v1 ->
     if v1 = v
     then dv
     else en v1
 
-let apply : env -> ide -> eval =
+let apply : env -> ide -> dval =
   fun en v -> en v
 
 // denotational semantics 
 
-let rec sem : env -> aexp -> eval =
-  fun ev e ->
-    match e with
-    | AEint i -> 
-        if i < 0 
-        then negative_natural_number_error ()
-        else i
-    | AEplus (e1,e2) ->
-      let s1 = sem ev e1
-      let s2 = sem ev e2
-      s1 + s2
-    | AEminus (e1,e2) ->
-      let s1 = sem ev e1
-      let s2 = sem ev e2
-      if s1 >= s2 
-      then (s1 - s2) 
-      else negative_natural_number_error ()
-    | AElet (v,e1,e2) -> 
-      let s1 = sem ev e1 
-      let ev1 = bind ev v s1
-      sem ev1 e2
-    | AEide v -> apply ev v
+let rec sem (ev : env) (e : aexp) =
+  match e with
+  | AEint i -> 
+      if i < 0 
+      then negative_natural_number_error ()
+      else (i : eval)
+  | AEplus (e1,e2) ->
+    let s1 = sem ev e1
+    let s2 = sem ev e2
+    s1 + s2
+  | AEminus (e1,e2) ->
+    let s1 = sem ev e1
+    let s2 = sem ev e2
+    if s1 >= s2 
+    then (s1 - s2) 
+    else negative_natural_number_error ()
+  | AElet (v,e1,e2) -> // The expression below is the same as: sem (bind ev v (sem ev e1)) e2
+    let s1 = sem ev e1 
+    let ev1 = bind ev v (evalToDval s1) // NOTE: s1 is an "eval"
+    sem ev1 e2      
+  | AEide v -> apply ev v
+
+
+
 
 // test 
 
@@ -105,3 +119,5 @@ List.iter eval l
 
 
 // Let us add ifthenelse
+
+

@@ -5,7 +5,7 @@
 type ide = string
 
 type aexp = 
-  AEint of int 
+| AEint of int 
 | AEplus of (aexp * aexp) 
 | AEminus of (aexp * aexp) 
 | AElet of (ide * aexp * aexp) 
@@ -13,7 +13,7 @@ type aexp =
 
 let rec aexp_to_string (e : aexp) =
   match e with
-    AEint i -> Printf.sprintf "%d" i
+  | AEint i -> Printf.sprintf "%d" i
   | AEplus (e1,e2) -> 
     Printf.sprintf "(%s + %s)" (aexp_to_string e1) (aexp_to_string e2)
   | AEminus (e1,e2) -> 
@@ -30,20 +30,21 @@ let unbound_identifier_error ide =
 
 let negative_natural_number_error () = failwith "natural numbers must be positive or zero"
  
-(* semantic domains *)
-type eval = int // VERY IMPORTANT: the domain to which identifiers are bound
+// semantic domains 
+type eval = int 
+type dval = eval // denotable and expressible values coincide
 
 let eval_to_string : eval -> string =
   fun e -> Printf.sprintf "%d" e
     
-type env = ide -> eval // VERY IMPORTANT: this is the environment that associates a "eval" to each defined identifier
+type env = ide -> dval // VERY IMPORTANT: this is the environment that associates a "eval" to each defined identifier
 
 let empty = fun v -> unbound_identifier_error v
 
-let bind (en : env) (v : ide) (ev : eval) = // VERY IMPORTANT: the binding operation that computes a new environment out of an environment, an identifier to bind, and the value
+let bind (en : env) (v : ide) (dv : eval) = // VERY IMPORTANT: the binding operation that computes a new environment out of an environment, an identifier to bind, and the value
   fun v1 ->
     if v1 = v
-    then ev
+    then dv
     else en v1
 
 let apply : env -> ide -> eval =
@@ -54,23 +55,23 @@ let apply : env -> ide -> eval =
 let rec sem : env -> aexp -> eval =
   fun ev e ->
     match e with
-      AEint i -> 
+    | AEint i -> 
         if i < 0 
         then negative_natural_number_error ()
         else i
     | AEplus (e1,e2) ->
-      let s1 = sem ev e1 in
-      let s2 = sem ev e2 in
+      let s1 = sem ev e1
+      let s2 = sem ev e2
       s1 + s2
     | AEminus (e1,e2) ->
-      let s1 = sem ev e1 in
-      let s2 = sem ev e2 in
+      let s1 = sem ev e1
+      let s2 = sem ev e2
       if s1 >= s2 
       then (s1 - s2) 
       else negative_natural_number_error ()
     | AElet (v,e1,e2) -> 
-      let s1 = sem ev e1 in 
-      let ev1 = bind ev v s1 in
+      let s1 = sem ev e1 
+      let ev1 = bind ev v s1
       sem ev1 e2
     | AEide v -> apply ev v
 
@@ -102,3 +103,5 @@ let l =
 
 List.iter eval l
 
+
+// Let us add ifthenelse

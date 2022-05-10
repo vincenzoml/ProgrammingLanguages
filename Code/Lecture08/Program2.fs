@@ -55,7 +55,7 @@ let type_error () = failwith "type error"
 
 (* semantic domains *)
     
-type eval = Int of int | Bool of bool (* bool è il tipo ocaml! *)
+type eval = Int of int | Bool of bool (* bool è il tipo fsharp! *)
     
 let eval_to_string (e : eval) =
   match e with

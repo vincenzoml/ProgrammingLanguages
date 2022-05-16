@@ -245,3 +245,6 @@ let main =
 
 // ESERCIZIO:
 // Implementare il *comando* ifthenelse (diverso dall'espressione condizionale), vale a dire aggiungere a "type com" il caso "CIfThenElse of exp * com * com", con la seguente semantica intesa: se l'espressione passata come primo argomento valuta a true, si deve eseguire solo il primo comando (ramo then), mentre in caso contrario si deve eseguire solo il ramo else. Creare un programma di esempio che dimostri che gli assegnamenti a variabili (unico tipo di side effect imperativo del nostro linguaggio) siano eseguiti in un ramo then o else solo se quel ramo viene valutato.
+
+// ESERCIZIO:
+// Aggiungere il comando "CReset" che "resetta" una variabile rendendola di nuovo non inizializzata. Hint: aggiungere un nuovo elemento (etichetta) al tipo MVal. Accertarsi che l'interprete esca con errore se si accede a una locazione non inizializzata. Dimostrare la funzionalità di reset con due programmi, uno che esce con errore dopo un reset, uno che funziona regolarmente perchè dopo un reset viene anche assegnato un valore.

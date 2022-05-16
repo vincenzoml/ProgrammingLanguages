@@ -69,7 +69,6 @@ let memory_error () = failwith "access to a location that is not available"
 let not_a_location_error i = failwith (Printf.sprintf "not a location: %s" i)
 
 (* semantic domains *)
-    
 type eval = Int of int | Bool of bool 
 
 type loc = int
@@ -80,21 +79,24 @@ type store = int * (loc -> mval) (* il primo elemento della coppia è la minima 
 
 let empty_store = (0,fun l -> memory_error ())
 
-let apply_store st l = (snd st) l
+let apply_store (maxloc,fn) l = fn l
 
 let allocate : store -> loc * store = 
-  fun st -> 
-    let l = fst st in
-    let l1 = l + 1 in
-    (l,(l1, snd st))
+  fun (maxloc,fn) ->     
+    let newMaxLoc = maxloc + 1 in
+    (maxloc,(newMaxLoc, fn))
     
-let update : store -> loc -> mval -> store = fun st l mv ->
-  match st with
-    (maxloc,fn) ->
-      if l >= maxloc then memory_error() 
-      else
-        let fn1 l1 = if l = l1 then mv else fn l1 in
-        (maxloc,fn1)
+let update : store -> loc -> mval -> store = 
+  fun st l mv ->
+    match st with
+      (maxloc,fn) ->
+        if l >= maxloc then memory_error() 
+        else
+          let fn1 l1 = 
+            if l = l1 
+            then mv 
+            else fn l1 
+          (maxloc,fn1)
 
 type dval = E of eval | L of loc // I valori denotabili contengono le locazioni e sono dunque diversi da quelli esprimibili 
 
@@ -171,7 +173,10 @@ let rec esem : exp -> env -> store -> eval = fun e ev st ->
       | Eifthenelse (c,e1,e2) ->
         let sc = esem c ev st in
         (match sc with
-          Bool b -> esem (if b then e1 else e2) ev st
+          Bool b -> 
+            if b 
+            then esem e1 ev st
+            else esem e2 ev st            
         | _ -> type_error ())
       | Eide i ->
           let value = apply_env ev i

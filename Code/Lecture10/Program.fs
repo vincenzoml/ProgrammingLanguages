@@ -25,6 +25,7 @@ type com =
     | Cconst of ide * exp
     | Cifthenelse of exp * pseq * pseq
     | Cwhile of exp *pseq
+    | CdoNTimes of exp * pseq 
 
 and pseq =
     | Pseq of com * pseq
@@ -57,7 +58,7 @@ let rec com_to_string (c: com) =
     | Cconst (v, e) -> sprintf "const %s = %s" v (exp_to_string e)
     | Cifthenelse (cond, cthen, celse) ->
         sprintf "if %s\nthen %s\nelse %s" (exp_to_string cond) (pseq_to_string cthen) (pseq_to_string celse)
-    | Cwhile (cond, body) -> sprintf "while %s\n%s" (exp_to_string cond) (pseq_to_string body)
+    | Cwhile (cond, body) -> sprintf "while %s\n%s" (exp_to_string cond) (pseq_to_string body)    
 
 and pseq_to_string (s: pseq) =
     match s with
@@ -249,15 +250,19 @@ let rec csem: com -> env -> store -> (env * store) =
         | Cwhile (cond, body) ->             
             let s = esem cond ev st in
 
-            match s with
-            | Bool b ->
-                if b then
-                    let (ev1, st1) = pssem body ev st in
+            match st with 
+            | (firstloc,stfn) ->
 
-                    csem (Cwhile(cond, body)) ev st1 (* NOTA CHE L'AMBIENTE VIENE BUTTATO VIA, LO STATO NO, PERCHE'? *) // ERRORE, non va restituito st1 ma st1 con "maxloc" (primo elemento della coppia) resettata
-                else
-                    (ev, st)
-            | _ -> type_error ()
+                match s with
+                | Bool b ->
+                    if b then
+                        let (ev1, (firstloc',stfn')) = pssem body ev st in
+
+                        // csem (Cwhile(cond, body)) ev st1 (* NOTA CHE L'AMBIENTE VIENE BUTTATO VIA, LO STATO NO, PERCHE'? *) // ERRORE, non va restituito st1 ma st1 con "maxloc" (primo elemento della coppia) resettata
+                        csem (Cwhile(cond, body)) ev (firstloc,stfn')
+                    else
+                        (ev, st)
+                | _ -> type_error ()
             
 and pssem: pseq -> env -> store -> (env * store) =
     fun s ev st ->

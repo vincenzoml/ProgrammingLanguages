@@ -24,7 +24,7 @@ type com =
     | Cvar of ide * exp
     | Cconst of ide * exp
     | Cifthenelse of exp * pseq * pseq
-    | Cwhile of exp * pseq
+    | Cwhile of exp *pseq
 
 and pseq =
     | Pseq of com * pseq
@@ -242,13 +242,11 @@ let rec csem: com -> env -> store -> (env * store) =
             match s with
             | Bool b ->
                 if b then
-                    pssem cthen ev st
+                    pssem cthen ev st // ERRORE: questo causa scoping dinamico, vale a dire, le variabili dichiarate nel ramo then possono essere viste dal seguito del programma
                 else
                     pssem celse ev st
             | _ -> type_error ()
-        | Cwhile (cond, body) -> 
-            let x = "x"
-            let y = "y"            
+        | Cwhile (cond, body) ->             
             let s = esem cond ev st in
 
             match s with
@@ -256,11 +254,11 @@ let rec csem: com -> env -> store -> (env * store) =
                 if b then
                     let (ev1, st1) = pssem body ev st in
 
-                    csem (Cwhile(cond, body)) ev st1 (* NOTA CHE L'AMBIENTE VIENE BUTTATO VIA, LO STATO NO, PERCHE'? *)
+                    csem (Cwhile(cond, body)) ev st1 (* NOTA CHE L'AMBIENTE VIENE BUTTATO VIA, LO STATO NO, PERCHE'? *) // ERRORE, non va restituito st1 ma st1 con "maxloc" (primo elemento della coppia) resettata
                 else
                     (ev, st)
             | _ -> type_error ()
-
+            
 and pssem: pseq -> env -> store -> (env * store) =
     fun s ev st ->
         match s with
@@ -277,7 +275,6 @@ let rec psem: prog -> env -> store -> eval =
             esem e ev1 st1
 
 (* test *)
-
 
 let eval: prog -> unit =
     fun p ->

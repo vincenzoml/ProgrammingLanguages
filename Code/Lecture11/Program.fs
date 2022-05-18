@@ -18,6 +18,9 @@ type exp =
     | Eand of (exp * exp)
     | Eor of (exp * exp)
     | Eifthenelse of (exp * exp * exp)
+    | Eapp of exp * exp
+    | Efun of ide * exp
+    | Elet of (ide * exp * exp) 
 
 type com =
     | Cassign of ide * exp
@@ -50,6 +53,10 @@ let rec exp_to_string (e: exp) =
     | Eleq (e1, e2) -> sprintf "(%s <= %s)" (exp_to_string e1) (exp_to_string e2)
     | Eifthenelse (c, e1, e2) ->
         sprintf "if %s then (%s) else (%s)" (exp_to_string c) (exp_to_string e1) (exp_to_string e2)
+    | Efun (arg,body) -> sprintf "fun %s -> %s" arg (exp_to_string body)
+    | Eapp (f,arg) -> sprintf "%s(%s)" (exp_to_string f) (exp_to_string arg) 
+    | Elet (v,e1,e2) -> 
+        sprintf "(let %s = %s in %s)" v (exp_to_string e1) (exp_to_string e2)
 
 let rec com_to_string (c: com) =
     match c with
@@ -59,7 +66,7 @@ let rec com_to_string (c: com) =
     | Cifthenelse (cond, cthen, celse) ->
         sprintf "if %s\nthen %s\nelse %s" (exp_to_string cond) (pseq_to_string cthen) (pseq_to_string celse)
     | Cwhile (cond, body) -> sprintf "while %s\n%s" (exp_to_string cond) (pseq_to_string body)   
-    | CdoNTimes (cond, body) -> sprintf "do %s times\n%s" (exp_to_string cond) (pseq_to_string body)  
+    | CdoNTimes (cond, body) -> sprintf "do %s times\n%s" (exp_to_string cond) (pseq_to_string body) 
 
 and pseq_to_string (s: pseq) =
     match s with
@@ -92,12 +99,20 @@ let not_a_location_error i =
 type eval =
     | Int of int
     | Bool of bool
+    | Fun of (ide * env * exp)
 
-type loc = int
+and loc = int
 
-type mval = eval
+and mval = eval
 
-type store = int * (loc -> mval) (* il primo elemento della coppia è la minima locazione non definita *)
+and store = int * (loc -> mval) (* il primo elemento della coppia è la minima locazione non definita *)
+
+and dval =
+    | E of eval
+    | L of loc
+
+and env = ide -> dval
+
 
 let empty_store = (0, (fun l -> memory_error ()))
 
@@ -115,12 +130,6 @@ let update: store -> loc -> mval -> store =
         match st with
         | (maxloc, fn) -> let fn1 l1 = if l = l1 then mv else fn l1 in (maxloc, fn1)
 
-type dval =
-    | E of eval
-    | L of loc
-
-type env = ide -> dval
-
 let empty_env = fun v -> unbound_identifier_error v
 
 let bind e v r = fun v1 -> if v1 = v then r else e v1
@@ -131,6 +140,7 @@ let rec eval_to_string (e: eval) =
     match e with
     | Int i -> sprintf "%d" i
     | Bool b -> if b then "true" else "false"
+    | Fun _ -> "function"
 
 (* denotational semantics *)
 
@@ -142,7 +152,7 @@ let rec esem: exp -> env -> store -> eval =
                 negative_natural_number_error ()
             else
                 Int i
-        | Eplus (e1, e2) ->
+        | Eplus (e1,e2) ->
             (let s1 = esem e1 ev st in
              let s2 = esem e2 ev st in
 
@@ -217,7 +227,20 @@ let rec esem: exp -> env -> store -> eval =
 
             match value with
             | L l -> apply_store st l
-            | E e -> e
+            | E e -> e            
+        | Elet (v,e1,e2) ->
+            let s1 = esem e1 ev st in 
+            let ev1 = bind ev v (E s1) // NOTE: s1 is an "eval"
+            esem e2 ev1 st  
+        | Efun (arg,body) ->    
+            Fun (arg,ev,body)
+        | Eapp (f,arg) ->
+            let fn = esem f ev st in
+            match fn with
+            |  Fun (par,ev1,body) ->
+                let s = esem arg ev st 
+                esem body (bind ev1 par (E s)) st 
+            | _ -> type_error ()        
 
 let rec csem: com -> env -> store -> (env * store) =
     fun c ev st ->
@@ -247,25 +270,7 @@ let rec csem: com -> env -> store -> (env * store) =
                     pssem cthen ev st // ERRORE: questo causa scoping dinamico, vale a dire, le variabili dichiarate nel ramo then possono essere viste dal seguito del programma
                 else
                     pssem celse ev st
-            | _ -> type_error ()
-        // While: soluzione 1 ("sintattica")
-        // | Cwhile (cond, body) ->             
-        //     let s = esem cond ev st in
-
-        //     match st with 
-        //     | (newloc,stfn) ->
-
-        //         match s with
-        //         | Bool b ->
-        //             if b then
-        //                 let (ev1, (newloc',stfn')) = pssem body ev st in
-
-        //                 // csem (Cwhile(cond, body)) ev st1 (* NOTA CHE L'AMBIENTE VIENE BUTTATO VIA, LO STATO NO (eccetto il reset della massima locazione), PERCHE'? *) // ERRORE, non va restituito st1 ma st1 con "maxloc" (primo elemento della coppia) resettata
-        //                 csem (Cwhile(cond, body)) ev (_,stfn')
-        //             else
-        //                 (ev, st)
-        //         | _ -> type_error ()
-        // While: soluzione 2 ("semantica")
+            | _ -> type_error ()        
         | Cwhile (cond, body) ->      
 
             let rec aux ev st =

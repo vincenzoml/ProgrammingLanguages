@@ -234,12 +234,12 @@ let rec esem: exp -> env -> store -> eval =
             esem e2 ev1 st  
         | Efun (arg,body) ->    
             Fun (arg,ev,body)
-        | Eapp (f,arg) ->
+        | Eapp (f,arg) -> // NB: f is an _expression_, not an identifier
             let fn = esem f ev st in
             match fn with
             |  Fun (par,ev1,body) ->
                 let s = esem arg ev st 
-                esem body (bind ev1 par (E s)) st 
+                esem body (bind ev1 par (E s)) st  // Se scoping dinamico, al posto di "ev1" c'è "ev"
             | _ -> type_error ()        
 
 let rec csem: com -> env -> store -> (env * store) =
@@ -372,3 +372,4 @@ return x
 ==> 14
 
 *)
+

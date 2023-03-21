@@ -206,6 +206,15 @@ let rec sum k =
 let rec sum2 k f = 
     if k <= 0 then 0 
     else (f k) + (sum2 (k-1) f) 
-
+;;
 /////////
 /// 
+/// 
+
+
+let f (x, y) = (y,x)
+
+
+let h x = f(f(x))
+
+printfn "%A" ( h (3, 3.0))

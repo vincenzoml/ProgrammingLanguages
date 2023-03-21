@@ -16,6 +16,12 @@ printfn "%s" "hello"
 printfn "The result of %d + %d is %d" 3 2 5
 printfn "%A %A %A" 3.0 3 "3"
 
+let f (x,y) =
+    x+y
+
+let f x y = 
+    x + y
+
 /// Simple expressions
 
 printfn "three plus three is %d" (3+3)
@@ -83,6 +89,8 @@ let x =
         (failwith "STUB")
     else
         "OK"
+
+;;
 
 
 // Recursion
@@ -196,5 +204,8 @@ let rec sum k =
 /// Sum for i in [1,k] of f(i), defined using a function, taking as arguments k and f
 
 let rec sum2 k f = 
-    if k <= 0 then f 0 
+    if k <= 0 then 0 
     else (f k) + (sum2 (k-1) f) 
+
+/////////
+/// 

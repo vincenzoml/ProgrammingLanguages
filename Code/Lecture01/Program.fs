@@ -9,6 +9,8 @@
 
 /// Printf in all flavours
 
+
+
 printfn "Hello world" (* Hello world -- Yes, one can also comment in this way *)
 
 printfn "%d" 3 
@@ -25,7 +27,7 @@ printfn "three plus three is %d" (3+3)
 
 /// Let binding
 
-let x = "3"
+let x = "3" + "3"
 
 printfn "%A" x
 
@@ -44,7 +46,7 @@ printfn "%A" y
 
 let f(x,y) =  x + y
 
-printfn "%A" (f (3,4))
+printfn "%A" (f (3.0,4.0))
 
 // Let's try a more complicated example
 

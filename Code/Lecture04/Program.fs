@@ -16,26 +16,32 @@ printfn "%A" (foldRight (fun (a,b) -> a-b) (id) 1 5 0)
 
 let list1 = [1; 2; 3]
 
-let list2 = [1,2,3]
+let list2 = [(1,2,3)]
 
 let list2' = [(1,2,3)]
 
-let list3 = (1,2,3)
+let list3 = (1,2) // TENERE BEN PRESENTE LA DIFFERENZA FRA list3, list3' e list3''
+
+let list3' = [1,2] // lo stesso di [(1,2)]
+
+let list3'' = [1;2] // NB il significato di [(1;2)] con le parentesi è estremamente diverso (";" è il costrutto di sequenza)
 
 // Q: What is the difference?
 
 let list4 = [] // empty list
 
-printfn "%A %A %A" list1.[0] list1.[1] list1.[2]
+printfn "%A %A %A" list1[0] list1[1] list1[2]
 
 printfn "%A %A" (List.head list1) (List.tail list1)
-
-
 
 let rec length lst = 
     if lst = [] 
     then 0
     else 1 + (length (List.tail lst))
+
+let rec sum lst =
+    if lst = [] then 0 
+    else (List.head lst) + (sum (List.tail lst))
 
 printfn "%A" (length list1)
 printfn "%A" (length list2)
@@ -57,11 +63,21 @@ let rec evenPositionsRec i lst =
         then (List.head lst)::(evenPositionsRec (i+1) (List.tail lst))
         else evenPositionsRec (i+1) (List.tail lst)
 
+// evenPositionsRec 1 [7;12] 0 = evenPositionsRec 2 [12] = 12 :: (evenPositionsRec 3 []) = 12 :: [] = [12] 
+
+
+
 printfn "%A" (evenPositionsRec 0 [1;2;3;4;5])
 
 
 
 let evenPositions lst = evenPositionsRec 0 lst
+
+// > evenPositions ["a";"b";"c";"d";"e"];;
+// val it: string list = ["a"; "c"; "e"]
+
+// POTEVO ANCHE SCRIVERE 
+// let evenPositions = evenPositionsRec 0
 
 // ALSO:
 let evenPositions' lst =
@@ -78,6 +94,11 @@ let evenPositions' lst =
 /// Failure?
 /// 
 
+let f x y = 
+    if y = 0 
+    then failwith "divisione per zero"
+    else x / y 
+
 let rec firstElement (lst : list<int>) =
     if lst <> [] then List.head lst
     else failwith (sprintf "Error: there are no elements in the list %A" lst)
@@ -89,11 +110,11 @@ let rec firstElement (lst : list<int>) =
 /// Function to reverse a list
 /// 
 
-let rec reverse acc lst =
+let rec reverseRec acc lst =
     if lst = [] then acc
-    else reverse ((List.head lst) :: acc) (List.tail lst)
+    else reverseRec ((List.head lst) :: acc) (List.tail lst)
 
-let r lst = reverse [] lst
+let reverse lst = reverseRec [] lst
 /// 
 /// Function to sum all the elements of a list
 /// 

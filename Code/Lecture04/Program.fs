@@ -160,22 +160,32 @@ let rec multiplyLists l1 l2 =
 
 // Pattern matching 
 let rec fib x = // THIS IS TEDIOUS!
-    if x = 1 then 1
-    else if x = 2 then 1
+    if x = 1 
+    then 1
+    else 
+        if x = 2 
+        then 1
     else (fib (x-1)) + (fib (x-2)) 
 
-
 let rec fib x = 
-    match x with    
-    | 1 -> 1
-    | 2 -> 1
-    | n -> (fib (n-1)) + (fib (n-2))
+    (match x with    
+        | 1 -> 1
+        | 2 -> 1
+        | n -> (fib (x-1)) + (fib (x-2))
+    )
+
+//// TEMPLATE
+// match ESPRESSIONE with  -- espressione è il valore da decostruire
+//     | MATCH1 -> RISULTATO1 
+//     ...
+//     | MATCHN -> RISULTATON
+
 
 let rec fib2 x = 
     match x with    
     | n when n < 1 -> failwith (sprintf "Error: %d is less than 1)" x)
     | (1|2) -> 1
-    | n -> (fib2 (n-1)) + (fib2 (n-2))
+    | m -> (fib2 (m-1)) + (fib2 (m-2))
 
 let rec fn2 a =
     match a with
@@ -190,7 +200,17 @@ let fst a =
 let rec length2 l =
     match l with    
     | [] -> 0
-    | (_ :: xs) -> 1 + (length2 xs)
+    | (x :: xs) -> 1 + (length2 xs)
+
+let rec sumMatching l =
+    match l with
+    | [] -> 0 
+    | (x::xs) -> x + (sumMatching xs)
+    
+let sumOfThreeElements l =
+    match l with
+    | [x] -> x+y+z
+    | failwith "the list doesn't have three elements"
 
 let rec nth i l = 
     match (i,l) with
@@ -260,7 +280,7 @@ let rec unzip l =
 
 ///// END OF LECTURE 5 
 
-// Arrays
+// Arrays (NOT SEEN IN CLASS)
 
 let v1 = [|0;1;2|]
 let v2 = [||]
@@ -396,6 +416,13 @@ let fnVU2 x =
     match x with 
     | VU i -> VU (i + 1)
 
+
+
+type Useful2 = Case1 of int | Case2 of string
+
+// > [Case1 3; Case2 "ciao"];; 
+// val it: Useful2 list = [Case1 3; Case2 "ciao"]
+
 // Alternatives are permitted
 
 type Alternative<'a,'b> = Alt1 of 'a | Alt2 of 'b
@@ -529,4 +556,7 @@ let rec sumList l =
 
 printfn "%A" (sumList lst1)
 
-// Error type
+// Recursive types are a classical topic in set theory:
+type Int = Zero | Succ of Int // Recursive
+
+// Exercise: define the sum of Int using the above declaration

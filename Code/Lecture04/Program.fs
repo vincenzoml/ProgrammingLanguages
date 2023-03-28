@@ -139,12 +139,32 @@ let reverse lst = reverseRec [] lst
 /// Function to multiply two lists value by value; raise an error if one is longer than the other one. 
 /// multiplyLists [1;2;3] [4;5;6] = [4;10;18]
 /// 
+/// 
+
+let rec concat l1 l2 =
+    if l1 = [] 
+    then l2 
+    else (List.head l1)::(concat (List.tail l1) l2)
+
+let rec multiplyLists l1 l2 =
+    if l1 = [] && l2 = [] 
+    then []
+    else 
+        if l1 = [] || l2 = [] 
+        then failwith "Error: one of the two lists is empty" 
+        else ((List.head l1) * (List.head l2))::(multiplyLists (List.tail l1) (List.tail l2))
 
 /////// LECTURE 4 ENDS HERE
 
 /////// LECTURE 5 STARTS HERE
 
 // Pattern matching 
+let rec fib x = // THIS IS TEDIOUS!
+    if x = 1 then 1
+    else if x = 2 then 1
+    else (fib (x-1)) + (fib (x-2)) 
+
+
 let rec fib x = 
     match x with    
     | 1 -> 1

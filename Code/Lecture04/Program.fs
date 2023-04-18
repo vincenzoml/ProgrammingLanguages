@@ -383,6 +383,12 @@ let interestingFunction2 (l : list<'a>) = l.[0]
 
 type UsefulType = int * string
 
+let f (x: UsefulType) = 
+    match x with
+    | (a,b) ->
+        sprintf "Useful: (%d,%s)" a b
+
+
 // Errors:
 // type UsefulType2 = a * string // a is an undefined type
 // type UsefulType2 = 'a * string // a is an undefined type parameter
@@ -420,10 +426,18 @@ let fnVU2 x =
 
 type Useful2 = Case1 of int | Case2 of string
 
+let fn x =
+    match x with
+    | Case1 a -> sprintf "%d" a
+    | Case2 b -> b
+
+let fnStrange x =
+    match x with
+    | Case1 a -> Case1 (a+1)
+    | Case2 b -> Case2 (b + "_incremented")
+
 // > [Case1 3; Case2 "ciao"];; 
 // val it: Useful2 list = [Case1 3; Case2 "ciao"]
-
-// Alternatives are permitted
 
 type Alternative<'a,'b> = Alt1 of 'a | Alt2 of 'b
 
@@ -434,7 +448,7 @@ let applyAlt x f1 f2 =
     | Alt1 x1 -> f1 x1
     | Alt2 x2 -> f2 x2
 
-let mapAlt x f1 f2 =
+let mapAlt (x : Alternative<'a,'b>) f1 f2 =
     match x with
     | Alt1 x1 -> Alt1 (f1 x1)
     | Alt2 x2 -> Alt2 (f2 x2)
@@ -444,15 +458,7 @@ let map1Alt x f =
     | Alt1 x1 -> Alt1 (f x1)
     | Alt2 x2 -> Alt2 (f x2)
 
-// Pattern matching in let bindings
 
-let pair1 = (2,3)
-
-let alt1 = Alt2 3
-
-let (2,el1) = pair1
-
-let (Alt2 el2) = alt1
 
 // Q: What does the following do instead
 // let Alt2 el2 = alt1
@@ -557,6 +563,24 @@ let rec sumList l =
 printfn "%A" (sumList lst1)
 
 // Recursive types are a classical topic in set theory:
-type Int = Zero | Succ of Int // Recursive
+type Int = Zero | Succ of Int
+
 
 // Exercise: define the sum of Int using the above declaration
+let rec sum (x : Int) (y : Int) = 
+    match x with
+    | Zero -> y
+    | Succ a -> Succ (sum a y)
+
+
+
+
+type ListInt = Empty | Cons of (int * ListInt)
+
+// Esempio
+let x = Cons(3, Cons (4, Cons (12,Empty)))
+
+
+// Alberi binari
+
+type BinTree<'a> = Empty | Node of 'a * BinTree<'a> * BinTree<'a>

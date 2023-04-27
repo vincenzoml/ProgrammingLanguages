@@ -4,13 +4,20 @@
 
 type ide = string
 
+// AElet represents the fsharp construct of the same name:
+// AElet "x" (AEint 3) (AEide "x") 
+// is equivalent to: 
+// "let x = 3 in x+1" 
+// which is equivalent to
+// let x = 3
+// x+1
+
 type aexp = 
 | AEint of int 
 | AEplus of (aexp * aexp) 
 | AEminus of (aexp * aexp) 
 | AElet of (ide * aexp * aexp) // AElet("ciccio",AEplus (AEint 10) (AEint 20),AEplus (AEide "ciccio",AEint 3))
 | AEide of ide // AEide "ciccio"
-
 
 let rec aexp_to_string (e : aexp) =
   match e with
@@ -43,20 +50,24 @@ let eval_to_string : eval -> string =
     
 type env = ide -> dval // VERY IMPORTANT: this is the environment that associates a "eval" to each defined identifier
 
-// What is an environment? Is it memory? NO! Example:
-let f() =
-  let x = [| 1; 2; 3 |]
-  let y = x
-  let x = [|0|] // Commenting this line changes the result
-  x[0] <- 7
-  y[0]
+// // What is an environment? Is it memory? NO! Example:
+// let f() =
+//   let x = [| 1; 2; 3 |]
+//   let y = x
+//   let x = [|0|] // Commenting this line changes the result
+//   x[0] <- 7
+//   y[0]
+
+// State vs environment
+// let x = 3 in
+//  (let x = 4 in x) + x  // The second x has value "3" when using a static environment
 
 let empty : ide -> dval = (fun v -> unbound_identifier_error v)
 
 let bind (en : env) (v : ide) (dv : dval) = // VERY IMPORTANT: the binding operation that computes a new environment out of an environment, an identifier to bind, and the value
-  fun v1 ->
+  fun v1 -> // The result is an environment
     if v1 = v
-    then dv
+    then dv 
     else en v1
 
 let apply : env -> ide -> dval =
@@ -86,7 +97,15 @@ let rec sem (ev : env) (e : aexp) =
     sem ev1 e2      
   | AEide v -> apply ev v
 
-
+// Esercizio: scrivere il termine della sintassi astratta per l'espressione
+//
+// (let x = 3 in x + 1) - (let y = 2 in y - 1)
+//
+// E calcolare e stampare il risultato usando la semantica definita sopra, partendo dall'ambiente vuoto
+//
+// Soluzione:
+// let expr = AEminus (( AElet ("x",AEint 3,AEplus(AEide "x",AEint 1)) )   , (AElet ("y",AEint 2,AEminus (AEide "y",AEint 1)))  )
+// printfn "%A" (sem empty expr)
 
 
 // test 

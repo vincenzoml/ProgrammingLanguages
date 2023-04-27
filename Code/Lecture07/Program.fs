@@ -59,11 +59,11 @@ let e4 = AEminus (AEint 3,AEplus (AEint 4,AEint 5))
 
 let e5 = AEminus (AEint 13,AEplus (AEint 4,AEint 5))
 
-let e6 = AEplus (AEint 3,AEtimes (AEint 2,AEint 5))
+let e6 = AEplus (AEint 3,AEtimes (AEint 2,AEint 5))  // 3+(2*5)
 
 let e7 = AEtimes (AEplus (AEint 3,AEint 2),AEint 5)
 
-let eval : aexp -> unit =
+let test : aexp -> unit =
   fun ae ->
     printfn "%s ==> " (aexp_to_string ae);
     try 
@@ -73,7 +73,7 @@ let eval : aexp -> unit =
       printfn "error: %s\n" message
 
 let main =
-  List.iter eval [e1;e2;e3;e4;e5;e6;e7]
+  List.iter test [e1;e2;e3;e4;e5;e6;e7]
     
 // output 
 // 

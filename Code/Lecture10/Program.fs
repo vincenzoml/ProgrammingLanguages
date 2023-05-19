@@ -27,7 +27,7 @@ type com =
     | Cwhile of exp *pseq
     | CdoNTimes of exp * pseq 
 
-and pseq =
+and pseq = // Equivalente a List<com>
     | Pseq of com * pseq
     | Pend
 
@@ -240,13 +240,16 @@ let rec csem: com -> env -> store -> (env * store) =
             (ev1, st)
         | Cifthenelse (cond, cthen, celse) ->
             let s = esem cond ev st in
-
             match s with
             | Bool b ->
                 if b then
-                    pssem cthen ev st // ERRORE: questo causa scoping dinamico, vale a dire, le variabili dichiarate nel ramo then possono essere viste dal seguito del programma
+                    // pssem cthen ev st // ERRORE: questo causa scoping dinamico, vale a dire, le variabili dichiarate nel ramo then possono essere viste dal seguito del programma
+                    let (ev1,st1) = pssem cthen ev st
+                    (ev,st1)
                 else
-                    pssem celse ev st
+                    // pssem celse ev st // ERRORE:
+                    let (ev1,st1) = pssem celse ev st
+                    (ev,st1) // Scoping statico
             | _ -> type_error ()
         // While: soluzione 1 ("sintattica")
         // | Cwhile (cond, body) ->             
@@ -318,7 +321,7 @@ let eval: prog -> unit =
     fun p ->
         printf "\n%s \n\n==> " (prog_to_string p)
 
-        try
+        try            
             printf "%s\n" (eval_to_string (psem p empty_env empty_store))
         with
         | Failure message -> printfn "error: %s\n" message

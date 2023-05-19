@@ -4,16 +4,18 @@
 
 type ide = string
   
+type integer = int
+
 type boolean = True | False
     
 type exp = 
-  Eint of int 
-| Eplus of (exp * exp) 
-| Eminus of (exp * exp) 
-| Elet of (ide * exp * exp)
-| Eide of ide 
-| Ebool of boolean
-| Eeql of (exp * exp)
+  Eint of integer // Es: l'intero "3"
+| Eplus of (exp * exp) // 3+3
+| Eminus of (exp * exp) // 3-2
+| Elet of (ide * exp * exp) // let x = 3 in x+1
+| Eide of ide // x
+| Ebool of boolean   // Es: il booleano "True"
+| Eeql of (exp * exp) // x=2
 | Enot of exp
 | Eand of (exp * exp)
 | Eor of (exp * exp) 
@@ -62,11 +64,13 @@ let eval_to_string (e : eval) =
     Int i -> Printf.sprintf "%d" i
   | Bool b -> if b then "true" else "false"
 
-type env = ide -> eval
+type dval = eval 
+
+type env = ide -> dval
 
 let empty = fun v -> unbound_identifier_error v
 
-let bind (en : env) (v : ide) (ev : eval) = 
+let bind (en : env) (v : ide) (ev : dval) = 
   fun v1 ->
       if v1 = v
       then ev

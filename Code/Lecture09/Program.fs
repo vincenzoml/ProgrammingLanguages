@@ -17,13 +17,14 @@ type exp =
 | Eifthenelse of (exp * exp * exp)
 
 type com = 
-| Cassign of ide * exp 
-| Cvar of ide * exp 
-| Cconst of ide * exp
+| Cassign of ide * exp  // x := 3
+| Cvar of ide * exp  // declare x := 3
+| Cconst of ide * exp // let x = 3
 
 type prog = 
 | Pseq of com * prog 
 | Pend of exp
+
 
 let rec exp_to_string (e : exp) =
   match e with
@@ -40,6 +41,8 @@ let rec exp_to_string (e : exp) =
   | Eor (e1,e2) -> Printf.sprintf "(%s or %s)" (exp_to_string e1) (exp_to_string e2)
   | Eeql (e1,e2) -> Printf.sprintf "(%s == %s)" (exp_to_string e1) (exp_to_string e2)
   | Eifthenelse (c,e1,e2) -> Printf.sprintf "if %s then (%s) else (%s)" (exp_to_string c) (exp_to_string e1) (exp_to_string e2)
+
+if 3=4 then "ciao" else "bye"
 
 let rec com_to_string (c : com) =
   match c with
@@ -176,13 +179,26 @@ let rec esem : exp -> env -> store -> eval = fun e ev st ->
           Bool b -> 
             if b 
             then esem e1 ev st
-            else esem e2 ev st            
+            else esem e2 ev st
         | _ -> type_error ())
       | Eide i ->
           let value = apply_env ev i
           match value with
           | L l -> apply_store st l 
           | E e -> e
+
+// ESEMPIO DI COME TESTARE ESEM senza dover usare csem e psem
+
+// let st = empty_store
+
+// let (newloc,st1) = allocate st
+// let st2 = update st1 newloc (Int 7)
+
+// let ev1 = empty_env
+// let ev2 = bind ev1 "x" (L newloc) 
+
+// let e = esem (Eide "x") ev1 st2
+// printfn "%A" e
 
 let csem : com -> env -> store -> (env * store) = 
   fun c ev st ->

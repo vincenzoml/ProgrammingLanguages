@@ -22,13 +22,14 @@ type exp =
     | Efun of ide * exp
     | Elet of (ide * exp * exp) 
 
-type com =
+type com =pseq
     | Cassign of ide * exp
     | Cvar of ide * exp
     | Cconst of ide * exp
     | Cifthenelse of exp * pseq * pseq
     | Cwhile of exp *pseq
     | CdoNTimes of exp * pseq 
+    | CFor of ide * exp * exp * pseq
 
 and pseq =
     | Pseq of com * pseq
@@ -67,6 +68,7 @@ let rec com_to_string (c: com) =
         sprintf "if %s\nthen %s\nelse %s" (exp_to_string cond) (pseq_to_string cthen) (pseq_to_string celse)
     | Cwhile (cond, body) -> sprintf "while %s\n%s" (exp_to_string cond) (pseq_to_string body)   
     | CdoNTimes (cond, body) -> sprintf "do %s times\n%s" (exp_to_string cond) (pseq_to_string body) 
+    | CFor (i,e1,e2,body) -> sprintf "for %s = %s to %s\n%s" i (exp_to_string e1) (exp_to_string e2) (pseq_to_string body)
 
 and pseq_to_string (s: pseq) =
     match s with

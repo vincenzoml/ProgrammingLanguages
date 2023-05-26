@@ -251,26 +251,22 @@ let rec csem: com -> env -> store -> (env * store) =
                     let (ev1,st1) = pssem celse ev st
                     (ev,st1) // Scoping statico
             | _ -> type_error ()
-        // While: soluzione 1 ("sintattica")
+        // Soluzione "sintattica, operazionale"
         // | Cwhile (cond, body) ->             
         //     let s = esem cond ev st in
-
         //     match st with 
         //     | (newloc,stfn) ->
 
         //         match s with
         //         | Bool b ->
         //             if b then
-        //                 let (ev1, (newloc',stfn')) = pssem body ev st in
-
-        //                 // csem (Cwhile(cond, body)) ev st1 (* NOTA CHE L'AMBIENTE VIENE BUTTATO VIA, LO STATO NO (eccetto il reset della massima locazione), PERCHE'? *) // ERRORE, non va restituito st1 ma st1 con "maxloc" (primo elemento della coppia) resettata
-        //                 csem (Cwhile(cond, body)) ev (_,stfn')
+        //                 let (ev1, (newloc',stfn')) = pssem body ev st in                        
+        //                 csem (Cwhile(cond, body)) ev (newloc,stfn')
         //             else
         //                 (ev, st)
         //         | _ -> type_error ()
-        // While: soluzione 2 ("semantica")
+        // While: soluzione 2 ("semantica, denotazionale")
         | Cwhile (cond, body) ->      
-
             let rec aux ev st =
                 let cresult = esem cond ev st in 
                 match cresult with

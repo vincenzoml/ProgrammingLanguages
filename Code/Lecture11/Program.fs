@@ -309,8 +309,13 @@ let rec csem: com -> env -> store -> (env * store) =
             let ev2 = esem e2 ev st 
             match (ev1,ev2) with            
             | (Int i1,Int i2) ->
-                ... // Semantica ricorsiva
-                // let rec aux i1 i2 ev st = ...
+                // Semantica ricorsiva
+                let rec aux i1 i2 ev st = 
+                    if i1 > i2 
+                    then (ev,st)
+                    else 
+                        let ev' = bind ev i i1
+                        ...
             | ... // Type checking
 
 

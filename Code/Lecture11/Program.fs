@@ -316,6 +316,8 @@ let rec csem: com -> env -> store -> (env * store) =
                     else 
                         let ev' = bind ev i i1
                         ...
+                        // NOTA BENE: accertarsi di NON passare ev' alla chiamata ricorsiva perchè l'ambiente crescerebbe indefinitamente
+                        // ev' serve SOLO per valutare il body
             | ... // Type checking
 
 

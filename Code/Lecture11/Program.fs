@@ -303,6 +303,16 @@ let rec csem: com -> env -> store -> (env * store) =
             match cresult with
             | Int i -> aux i ev st 
             | _ -> type_error()
+        
+        | CFor (i,e1,e2,body) ->
+            let ev1 = esem e1 ev st
+            let ev2 = esem e2 ev st 
+            match (ev1,ev2) with            
+            | (Int i1,Int i2) ->
+                ... // Semantica ricorsiva
+                // let rec aux i1 i2 ev st = ...
+            | ... // Type checking
+
 
 and pssem: pseq -> env -> store -> (env * store) =
     fun s ev st ->

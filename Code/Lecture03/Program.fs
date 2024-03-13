@@ -73,14 +73,14 @@ printfn "%A" (getType 3)
 // Try to evaluate
 // (3.0 : int)
 
-// Note the ":" construct. It does not change the semantics, it only checks it from the point of view of the user.
-let ratio2(x : float,y : float) =
-    let z = x * y
-    let w = (2.0 * x) + (2.0 * y)
-    (w / z  : float)
+// // Note the ":" construct. It does not change the semantics, it only checks it from the point of view of the user.
+// let ratio2(x : float,y : float) =
+//     let z = x * y
+//     let w = (2.0 * x) + (2.0 * y)
+//     (w / z  : float)
 
-printfn "%A" (ratio2(1,225))
-printfn "%A" (ratio2(15,15))
+// printfn "%A" (ratio2(1,225))
+// printfn "%A" (ratio2(15,15))
 
 // Conditional EXPRESSIONS (the equivalent of "condition ? e1 : e2" in languages derived from C)
 
@@ -91,6 +91,21 @@ let x =
         "OK"
 
 ;;
+
+
+// Exception handling
+
+let f x =
+    if x > 0 then "intero_positivo"
+    else failwith "error"
+
+let x = 
+    try f 4
+    with e -> 
+        "funzione parziale"
+
+printfn "%A" x
+
 
 
 // Recursion
@@ -218,3 +233,17 @@ let f (x, y) = (y,x)
 let h x = f(f(x))
 
 printfn "%A" ( h (3, 3.0))
+
+
+// EXAMPLE OF USE OF "fun"
+
+let f1 =
+    fun x ->
+        fun y -> 
+            x + y
+
+let f2 x y = x + y
+
+let f3 (x,y) = x + y
+
+let f4 = f2 3

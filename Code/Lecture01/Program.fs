@@ -7,7 +7,7 @@
 // Comments are like this one
 
 
-/// Printf in all flavours
+// Printf in all flavours
 
 
 
@@ -18,7 +18,7 @@ printfn "%s" "hello"
 printfn "The result of %d + %d is %d" 3 2 5
 printfn "%A %A %A" 3.0 3 "3"
 
-/// Simple expressions
+// Simple expressions
 
 printfn "three plus three is %d" (3+3)
 // Error:
@@ -27,7 +27,8 @@ printfn "three plus three is %d" (3+3)
 
 /// Let binding
 
-let x = "3" + "3"
+let x = 3 + 3
+
 
 printfn "%A" x
 
@@ -53,7 +54,7 @@ printfn "%A" (f (3.0,4.0))
 let g(x,y) =
     let z = x * y
     let w = (2*x) + (2*y)
-    w / z
+    w 
 
 // NOTE: language blocks are indentation-driven by default, but one can also make blocks explicit; we shall explore this if we need it
 // See e.g. https://fsharp.org/specs/language-spec/4.1/FSharpSpec-4.1-latest.pdf S. 6.5 "Control Flow Expressions" page 91
@@ -104,7 +105,7 @@ printfn "%A" (getType 3)
 
 let h(x,y) =
     let z = x * y
-    let w = (2.0 * x) + ((2 : double)*y)
+    let w = (2.0 * x) + ((2 : float)*y)
     w / z
 
 printfn "%A" (h(1,225))
@@ -119,6 +120,8 @@ let rec recFn x = // Note that I'm also omitting parentheses here
         0 // Note: return is NOT needed in functions
     else 
         2 + (recFn (x - 1)) // why do I need parentheses around (x-1) ?
+
+
 
 printfn "%d" (recFn 7)
 

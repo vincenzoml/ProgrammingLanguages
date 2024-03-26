@@ -88,7 +88,7 @@ let x =
     if 5 > 4 then
         (failwith "STUB")
     else
-        "OK"
+        "OK" 
 
 ;;
 

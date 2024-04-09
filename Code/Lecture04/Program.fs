@@ -12,13 +12,24 @@ printfn "%A" (foldLeft (fun (a,b) -> a-b) (id) 1 5 0)
 
 printfn "%A" (foldRight (fun (a,b) -> a-b) (id) 1 5 0)
 
+// Tuples
+
+// Demonstrate the usage of tuples with different element types, to pass different arguments to a function
+
+let f ((x,y) : int * string) =
+    (string x) + y
+
+f (3,"test")
+
+p
+
+
+
 // Lists
 
 let list1 = [1; 2; 3]
 
 let list2 = [(1,2,3)]
-
-let list2' = [(1,2,3)]
 
 let list3 = (1,2) // TENERE BEN PRESENTE LA DIFFERENZA FRA list3, list3' e list3''
 
@@ -171,8 +182,14 @@ let rec fib x =
     (match x with    
         | 1 -> 1
         | 2 -> 1
-        | n -> (fib (x-1)) + (fib (x-2))
+        | n -> (fib (n-1)) + (fib (n-2))
     )
+
+let example x = 
+    match x with
+    | (a,b) -> a + b
+
+
 
 //// TEMPLATE
 // match ESPRESSIONE with  -- espressione è il valore da decostruire
@@ -582,6 +599,21 @@ let rec sum (x : Int) (y : Int) =
 
 type ListInt = Empty | Cons of (int * ListInt)
 
+let x = Empty
+
+// Pattern matching su ADT
+let esempio l = 
+    match l with
+    | Empty -> "vuoto"
+    | _ -> "pieno"
+
+
+let esempio2 l =
+    match l with
+    | Empty -> "vuoto"
+    | Cons (_,Empty) -> "un elemento"
+    | _ -> "più di un elemento"
+
 // Esempio
 let x = Cons(3, Cons (4, Cons (12,Empty)))
 
@@ -589,6 +621,7 @@ let x = Cons(3, Cons (4, Cons (12,Empty)))
 
 type BinTree<'a> = Empty | Node of ('a * BinTree<'a> * BinTree<'a>)
 
+let x = Node (3, Node (4, Empty, Empty), Node (5,Empty, Empty))
 
 let rec maxDepth bt =
     match bt with

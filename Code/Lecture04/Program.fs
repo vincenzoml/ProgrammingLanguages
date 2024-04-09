@@ -565,6 +565,14 @@ printfn "%A" (sumList lst1)
 // Recursive types are a classical topic in set theory:
 type Int = Zero | Succ of Int
 
+let sem : Int -> int = 
+    fun x -> 
+        match x with
+            | Zero -> 0
+            | Succ y -> y + 1
+
+
+
 
 // Exercise: define the sum of Int using the above declaration
 let rec sum (x : Int) (y : Int) = 
@@ -572,15 +580,32 @@ let rec sum (x : Int) (y : Int) =
     | Zero -> y
     | Succ a -> Succ (sum a y)
 
-
-
-
 type ListInt = Empty | Cons of (int * ListInt)
 
 // Esempio
 let x = Cons(3, Cons (4, Cons (12,Empty)))
 
-
 // Alberi binari
 
-type BinTree<'a> = Empty | Node of 'a * BinTree<'a> * BinTree<'a>
+type BinTree<'a> = Empty | Node of ('a * BinTree<'a> * BinTree<'a>)
+
+
+let rec maxDepth bt =
+    match bt with
+    | Empty -> 0
+    | Node (x,y,z) -> 1 + (max (maxDepth y) (maxDepth z))
+
+printfn "%A" (maxDepth (
+                    Node ("ciao",
+                        Node("a",Empty,Empty),
+                        Node ("b",
+                                Node ("c",Empty,Empty),
+                                Empty)
+                    )))
+
+
+// Recall how to do pattern matching on n-uples
+// let x = (1,"a",true)
+
+// match x with 
+//     | (x,y,z) -> ...

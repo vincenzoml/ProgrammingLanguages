@@ -35,7 +35,7 @@ let rec sem : aexp -> eval =
     | AEplus (e1,e2) ->  (* Q: devo controllare che s1 e s2 siano non negativi? *)
       let s1 = sem e1 
       let s2 = sem e2 
-      s1 + s2
+      s1 + s2 // (sem e1) + (sem e2)
     | AEminus (e1,e2) ->
       let s1 = sem e1 
       let s2 = sem e2 

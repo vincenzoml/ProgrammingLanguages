@@ -19,6 +19,22 @@ type aexp =
 | AElet of (ide * aexp * aexp) // AElet("ciccio",AEplus (AEint 10) (AEint 20),AEplus (AEide "ciccio",AEint 3))
 | AEide of ide // AEide "ciccio"
 
+// AElet("ciccio",AEplus (AEint 10) (AEint 20),AEplus (AEide "ciccio",AEint 3))
+
+// let ciccio = 10 + 20 
+//     in ciccio + 3
+
+// int f() {
+//    const ciccio = 10 + 20
+//    return ciccio+3
+// }
+//
+
+
+// esempio
+
+let expr1 = AEplus ((AEint 7),(AEide "x"))  // 7 + x
+
 let rec aexp_to_string (e : aexp) =
   match e with
   | AEint i -> Printf.sprintf "%d" i
@@ -31,7 +47,6 @@ let rec aexp_to_string (e : aexp) =
       (aexp_to_string e1) (aexp_to_string e2)
   | AEide v -> v
 
-
 // error handling 
 let unbound_identifier_error ide = 
   failwith (Printf.sprintf "unbound identifier %s" ide)
@@ -42,13 +57,13 @@ let negative_natural_number_error () = failwith "natural numbers must be positiv
 type eval = int 
 type dval = eval // denotable and expressible values coincide
 
-let evalToDval x = x // "converts" a denotable value to an expressible value
-
+let evalToDval (x: eval) = x // "converts" a denotable value to an expressible value
+let dvalToEval (x: dval) = x
 
 let eval_to_string : eval -> string =
   fun e -> Printf.sprintf "%d" e
     
-type env = ide -> dval // VERY IMPORTANT: this is the environment that associates a "eval" to each defined identifier
+type env = ide -> dval // VERY IMPORTANT: this is the environment that associates a "dval" to each defined identifier
 
 // // What is an environment? Is it memory? NO! Example:
 // let f() =
@@ -62,16 +77,16 @@ type env = ide -> dval // VERY IMPORTANT: this is the environment that associate
 // let x = 3 in
 //  (let x = 4 in x) + x  // The second x has value "3" when using a static environment
 
-let empty : ide -> dval = (fun v -> unbound_identifier_error v)
+let empty : ide -> dval = (fun (i: ide) -> unbound_identifier_error i)
 
-let bind (en : env) (v : ide) (dv : dval) = // VERY IMPORTANT: the binding operation that computes a new environment out of an environment, an identifier to bind, and the value
-  fun v1 -> // The result is an environment
-    if v1 = v
+let bind (en : env) (i : ide) (dv : dval) = // VERY IMPORTANT: the binding operation that computes a new environment out of an environment, an identifier to bind, and the value
+  (fun i1 -> // The result is an environment
+    if i1 = i
     then dv 
-    else en v1
+    else en i1) : env
 
 let apply : env -> ide -> dval =
-  fun en v -> en v
+  fun en i -> en i
 
 // denotational semantics 
 
@@ -91,11 +106,19 @@ let rec sem (ev : env) (e : aexp) =
     if s1 >= s2 
     then (s1 - s2) 
     else negative_natural_number_error ()
-  | AElet (v,e1,e2) -> // The expression below is the same as: sem (bind ev v (sem ev e1)) e2
+  | AElet (i,e1,e2) -> // The expression below is the same as: sem (bind ev v (sem ev e1)) e2
     let s1 = sem ev e1 
-    let ev1 = bind ev v (evalToDval s1) // NOTE: s1 is an "eval"
+    let ev1 = bind ev i (evalToDval s1) // NOTE: s1 is an "eval"
     sem ev1 e2      
-  | AEide v -> apply ev v
+  | AEide i -> dvalToEval (apply ev i)
+
+
+// ev: ide -> dval
+// sem (fun id -> if id = "x" then 7 else ERROR() ) (AEide (x: ide) )
+
+
+
+
 
 // Esercizio: scrivere il termine della sintassi astratta per l'espressione
 //

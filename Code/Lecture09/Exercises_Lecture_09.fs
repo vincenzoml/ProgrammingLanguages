@@ -20,6 +20,7 @@ type com =
 | Cassign of ide * exp  // x := 3
 | Cvar of ide * exp  // declare x := 3
 | Cconst of ide * exp // let x = 3
+| CAssign2 of (ide * ide * exp * exp)
 
 type prog = 
 | Pseq of com * prog 
@@ -127,14 +128,14 @@ let rec esem : exp -> env -> store -> eval = fun e ev st ->
           then negative_natural_number_error ()
           else Int i
       | Eplus (e1,e2) -> 
-        (let s1 = esem e1 ev st in
-         let s2 = esem e2 ev st in
+        (let s1 = esem e1 ev st
+         let s2 = esem e2 ev st
          match (s1,s2) with
            (Int i1,Int i2) -> Int (i1 + i2)
          | _ -> type_error ())
       | Eminus (e1,e2) ->
-        let s1 = esem e1 ev st in
-        let s2 = esem e2 ev st in
+        let s1 = esem e1 ev st 
+        let s2 = esem e2 ev st 
         (match (s1,s2) with
           (Int i1,Int i2) ->
             if i1 >= i2 
@@ -155,14 +156,14 @@ let rec esem : exp -> env -> store -> eval = fun e ev st ->
             else Bool false
         | _ -> type_error ())
       | Eand (e1,e2) ->
-        let s1 = esem e1 ev st in
-        let s2 = esem e2 ev st in 
+        let s1 = esem e1 ev st 
+        let s2 = esem e2 ev st  
         (match (s1,s2) with
           (Bool b1,Bool b2) -> Bool (b1 && b2)
         | _ -> type_error ())
       | Eor (e1,e2) ->
-        let s1 = esem e1 ev st in
-        let s2 = esem e2 ev st in 
+        let s1 = esem e1 ev st 
+        let s2 = esem e2 ev st 
         (match (s1,s2) with
           (Bool b1,Bool b2) -> Bool (b1 || b2)
         | _ -> type_error ())
@@ -207,16 +208,16 @@ let csem : com -> env -> store -> (env * store) =
             let s = esem e ev st        
             let st1 = update st l s in
             (ev,st1)
-        | _ -> not_a_location_error i
+        | _ -> not_a_location_error i    
     | Cvar (i,e) ->
         let s = esem e ev st in
-        let (newloc,st1) = allocate st in
-        let st2 = update st1 newloc s in // Exercise: what happens if by mistake one uses "st" in place of "st1"?
-        let ev1 = bind ev i (L newloc) in
+        let (newloc,st1) = allocate st
+        let st2 = update st1 newloc s // Exercise: what happens if by mistake one uses "st" in place of "st1"?
+        let ev1 = bind ev i (L newloc)
         (ev1,st2)
     | Cconst (i,e) ->
       let s = esem e ev st in
-      let ev1 = bind ev i (E s) in
+      let ev1 = bind ev i (E s) 
       (ev1,st)
         
 let rec psem : prog -> env -> store -> eval = 
@@ -277,4 +278,39 @@ let main =
 //
 // 2) l'espressione assegnata alla seconda variabile può vedere il valore della
 //    prima variabile dopo l'assegnamento della prima espressione 
+//
+// SOLUZIONE PARALLELA
+// | CAssign2 (i1,i2,e1,e2) ->
+//                  let s1 = esem e1 ev st
+//                  let s2 = esem e2 ev st
+//                  // This is correct in our language, but not generally speaking: if (i1 == i2) failwith "conflicting parallel assignment"
+//                  let d1 = apply_env i1 
+//                  let d2 = apply_env i2
+//                  match d1,d2 with
+//                      | (L l1,L l2) ->
+//                          if (l1 == l2) failwith "conflicting parallel assignment"
+//                          (ev,update (update st l1 s1) l2 s2)
+//                      | _ -> type_error()
+//                  let st1 = update st 
+// SOLUZIONE SEQUENZIALE
+// | CAssign2 (i1,i2,e1,e2) ->
+//                  let d1 = apply_env i1 
+//                  let d2 = apply_env i2
+//                  match d1,d2 with
+//                      | (L l1,L l2) ->
+//                         let s1 = esem e1 ev st
+//                         let st1 = update st l1 s1                        
+//                         let s2 = esem e2 ev st1 // Usage of st1 instead of st IS THE MAIN DIFFERENCE BETWEEN PARALLEL AND SEQUENTIAL!                    
+//                         // Testing for conflig
+//                          (ev,update st1 l2 s2)
+//                      | _ -> type_error()
+//                  let st1 = update st 
+
+// ESERCIZIO
 // 
+// Aggiungere alla sintassi dei comandi il comando "CSwap of ide * ide" che scambia il valore di due variabili (NON le loro locazioni)
+// 
+// Implementare poi la variante in cui si modifica l'ambiente scambiando, invece, due locazioni
+//
+
+

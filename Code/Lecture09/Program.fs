@@ -42,8 +42,6 @@ let rec exp_to_string (e : exp) =
   | Eeql (e1,e2) -> Printf.sprintf "(%s == %s)" (exp_to_string e1) (exp_to_string e2)
   | Eifthenelse (c,e1,e2) -> Printf.sprintf "if %s then (%s) else (%s)" (exp_to_string c) (exp_to_string e1) (exp_to_string e2)
 
-if 3=4 then "ciao" else "bye"
-
 let rec com_to_string (c : com) =
   match c with
   | Cassign (i,e) -> 
@@ -80,17 +78,17 @@ type mval = eval // I valori memorizzabili sono uguali a quelli esprimibili
 
 type store = int * (loc -> mval) (* il primo elemento della coppia è la minima locazione non definita *)
 
-let empty_store = (0,fun l -> memory_error ())
+let empty_store: int * ('a -> 'b) = (0,fun (l: 'a) -> memory_error ())
 
 let apply_store (maxloc,fn) l = fn l
 
 let allocate : store -> loc * store = 
   fun (maxloc,fn) ->     
-    let newMaxLoc = maxloc + 1 in
+    let newMaxLoc = maxloc + 1 
     (maxloc,(newMaxLoc, fn))
     
 let update : store -> loc -> mval -> store = 
-  fun st l mv ->
+  fun (st: store) l mv ->
     match st with
       (maxloc,fn) ->
         if l >= maxloc then memory_error() 
@@ -203,7 +201,7 @@ let rec esem : exp -> env -> store -> eval = fun e ev st ->
 let csem : com -> env -> store -> (env * store) = 
   fun c ev st ->
     match c with
-    | Cassign (i,e) ->
+    | Cassign (i: ide,e) ->
         match apply_env ev i with
         | L l ->
             let s = esem e ev st        
@@ -213,7 +211,7 @@ let csem : com -> env -> store -> (env * store) =
     | Cvar (i,e) ->
         let s = esem e ev st in
         let (newloc,st1) = allocate st in
-        let st2 = update st1 newloc s in
+        let st2 = update st1 newloc s in // Exercise: what happens if by mistake one uses "st" in place of "st1"?
         let ev1 = bind ev i (L newloc) in
         (ev1,st2)
     | Cconst (i,e) ->
@@ -222,7 +220,7 @@ let csem : com -> env -> store -> (env * store) =
       (ev1,st)
         
 let rec psem : prog -> env -> store -> eval = 
-  fun p ev st ->
+  fun p ev (st: store) ->
     match p with
       Pend e -> esem e ev st 
     | Pseq (c,q) -> 

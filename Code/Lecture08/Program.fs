@@ -109,7 +109,7 @@ let rec sem (ev : env) (e : aexp) =
   | AElet (i,e1,e2) -> // The expression below is the same as: sem (bind ev v (sem ev e1)) e2
     let s1 = sem ev e1 
     let ev1 = bind ev i (evalToDval s1) // NOTE: s1 is an "eval"
-    sem ev1 e2      
+    sem ev1 e2     
   | AEide i -> dvalToEval (apply ev i)
 
 

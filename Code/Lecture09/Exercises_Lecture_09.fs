@@ -288,7 +288,7 @@ let main =
 //                  let d2 = apply_env i2
 //                  match d1,d2 with
 //                      | (L l1,L l2) ->
-//                          if (l1 == l2) failwith "conflicting parallel assignment"
+//                          if (l1 = l2) failwith "conflicting parallel assignment"
 //                          (ev,update (update st l1 s1) l2 s2)
 //                      | _ -> type_error()
 //                  let st1 = update st 

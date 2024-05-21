@@ -52,6 +52,10 @@ let rec com_to_string (c : com) =
   | Cconst (v,e) -> 
       sprintf "const %s = %s" v (exp_to_string e)
 
+  // ESERCIZIO: CCondAssign (i,e1,e2) assegna a i "e1" solo se "e2" è vera
+  | CCondAssign of (ide * expr * expr)
+
+
 let rec prog_to_string (p : prog) = 
   match p with
   | Pseq (c,q) -> Printf.sprintf "%s;\n%s" (com_to_string c) (prog_to_string q)
@@ -291,7 +295,6 @@ let main =
 //                          if (l1 = l2) failwith "conflicting parallel assignment"
 //                          (ev,update (update st l1 s1) l2 s2)
 //                      | _ -> type_error()
-//                  let st1 = update st 
 // SOLUZIONE SEQUENZIALE
 // | CAssign2 (i1,i2,e1,e2) ->
 //                  let d1 = apply_env i1 
@@ -304,7 +307,6 @@ let main =
 //                         // Testing for conflig
 //                          (ev,update st1 l2 s2)
 //                      | _ -> type_error()
-//                  let st1 = update st 
 
 // ESERCIZIO
 // 

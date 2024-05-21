@@ -256,7 +256,6 @@ let rec csem: com -> env -> store -> (env * store) =
         //     let s = esem cond ev st in
         //     match st with 
         //     | (newloc,stfn) ->
-
         //         match s with
         //         | Bool b ->
         //             if b then
@@ -267,17 +266,19 @@ let rec csem: com -> env -> store -> (env * store) =
         //         | _ -> type_error ()
         // While: soluzione 2 ("semantica, denotazionale")
         | Cwhile (cond, body) ->      
-            let rec aux ev st =
+            let rec aux ev st = 
                 let cresult = esem cond ev st in 
-                match cresult with
-                | Bool b ->
-                    if not b
+                match cresult with 
+                | Bool (b: bool) ->
+                    if b = false 
                     then (ev,st)
                     else 
                         match st with 
                         | (newloc,_) ->
-                            let (_, (_,stfn')) = pssem body ev st in
-                            aux ev (newloc,stfn')                
+                            let x: env * store = pssem body ev st in 
+                            match x with 
+                                (_, (_,stfn')) ->
+                                    aux ev (newloc,stfn') 
                 | _ -> type_error()
 
             aux ev st // inizio da ambiente e stato di chiamata
@@ -295,6 +296,7 @@ let rec csem: com -> env -> store -> (env * store) =
             match cresult with
             | Int i -> aux i ev st 
             | _ -> type_error()
+
 
 and pssem: pseq -> env -> store -> (env * store) =
     fun s ev st ->

@@ -266,7 +266,7 @@ let rec csem: com -> env -> store -> (env * store) =
         //         | _ -> type_error ()
         // While: soluzione 2 ("semantica, denotazionale")
         | Cwhile (cond, body) ->      
-            let rec aux ev st = 
+            let rec aux (ev: env) (st: store) = 
                 let cresult = esem cond ev st in 
                 match cresult with 
                 | Bool (b: bool) ->
